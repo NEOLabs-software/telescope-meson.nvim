@@ -10,10 +10,8 @@ M.meson = function(opts)
 
   -- Get the current working directory
   local cwd = vim.fn.getcwd()
-  
   -- Check if meson.build exists in the current directory
   local meson_build_path = cwd .. '/meson.build'
-  
   -- Set up the build directory path
   local builddir = cwd .. '/builddir'
 
@@ -42,10 +40,40 @@ M.meson = function(opts)
     end
   else
     -- If meson.build doesn't exist, show meson init command
-    meson_commands = {
-      "meson init"
-    }
-  end
+
+    local source_files = vim.fn.glob(cwd .. '/**/*.{c,cpp,cc}', true, true)
+
+    if #source_files > 0 then
+      local src_list = "['" .. table.concat(source_files, "', '") .. "']"
+      local meson_build_template = [[
+project('auto_project', 'c', 'cpp',
+  default_options : ['buildtype=release', 'warning_level=2'])
+
+executable('auto_executable', ]] .. src_list .. [[)
+]]
+      -- Write the generated template to meson.build
+      local file = io.open(meson_build_path, "w")
+      if file then
+        file:write(meson_build_template)
+        file:close()
+        print("meson.build created with discovered source files!")
+      else
+        print("Failed to create meson.build.")
+      end
+      meson_commands = {
+        "meson setup " .. builddir,
+        "meson compile -C " .. builddir,
+        "meson test -C " .. builddir,
+        "meson install -C " .. builddir,
+        "meson configure -C " .. builddir,
+        "meson clean -C " .. builddir
+      }
+    else
+      -- No source files found, fallback to meson init
+      meson_commands = {
+        "meson init"
+      }
+    end  end
 
   -- Open Telescope picker with the meson commands
   pickers.new(opts, {
