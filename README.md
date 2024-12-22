@@ -90,6 +90,7 @@ executable('%s', %s)
 ```
 
 > note: the %s represents the builddir variable, it is crucial for the plugin to work properly
+
 explanation:
 | setting | meaning | default value |
 | ------------- | -------------- | -------------- |
