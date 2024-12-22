@@ -3,4 +3,9 @@ this contains info of what is to needed to do to the plugin
 
 ==============telescope-meson.nvim==============
 
+- dynamically fetch commands based on buildir
+- add config to support more commands
+- support multiple projects
+
+
 
