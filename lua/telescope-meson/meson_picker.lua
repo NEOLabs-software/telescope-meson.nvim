@@ -5,15 +5,41 @@ local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local M = {}
 
+
+M.config = {
+  builddir_name = '/builddir', -- Default builddir name
+  meson_build_name = '/meson.build', -- Default meson.build file name
+  meson_commands_with_builddir = {
+    "meson compile -C ${builddir}",
+    "meson test -C ${builddir}",
+    "meson install -C ${builddir}",
+    "meson configure -C ${builddir}",
+    "meson clean -C ${builddir}",
+  }, -- Commands with builddir
+  meson_commands_without_builddir = {
+    "meson compile",
+    "meson test",
+    "meson install",
+    "meson configure",
+    "meson clean",
+  }, -- Commands without builddir
+  meson_build_template = [[
+project('%s', 'c', 'cpp',
+  default_options : ['buildtype=release', 'warning_level=2'])
+
+executable('%s', %s)
+]], -- Default meson.build template
+}
+
+
 M.meson = function(opts)
   opts = opts or {}
 
   -- Get the current working directory
   local cwd = vim.fn.getcwd()
   -- Check if meson.build exists in the current directory
-  local meson_build_path = cwd .. '/meson.build'
-  -- Set up the build directory path
-  local builddir = cwd .. '/builddir'
+  local meson_build_path = cwd .. M.config.meson_build_name
+  local builddir = cwd .. M.config.builddir_name
 
   local project_name = vim.fn.fnamemodify(cwd, ":t")
 
@@ -48,22 +74,24 @@ M.meson = function(opts)
     vim.fn.delete(builddir, 'rf')
 
     local source_files = vim.fn.glob(cwd .. '/**/*.{c,cpp,cc}', true, true)
-    source_files = vim.tbl_filter(function(file) 
-      return not string.find(file, builddir) 
+    source_files = vim.tbl_filter(function(file)
+      return not string.find(file, builddir)
     end, source_files)
 
     if #source_files > 0 then
       local src_list = "['" .. table.concat(source_files, "', '") .. "']"
-      local meson_build_template = [[
-project(']] .. project_name .. [[', 'c', 'cpp',
+      local meson_build_template = M.config.meson_build_template or [[
+project('%s', 'c', 'cpp',
   default_options : ['buildtype=release', 'warning_level=2'])
 
-executable(']] .. project_name .. [[', ]] .. src_list .. [[)
+executable('%s', %s)
 ]]
+
+      local generated_meson_build = string.format(meson_build_template, project_name, project_name, src_list)
       -- Write the generated template to meson.build
       local file = io.open(meson_build_path, "w")
       if file then
-        file:write(meson_build_template)
+        file:write(generated_meson_build)
         file:close()
         print("meson.build created with discovered source files!")
       else

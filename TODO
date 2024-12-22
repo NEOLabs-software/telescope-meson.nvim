@@ -5,7 +5,7 @@ this contains info of what is to needed to do to the plugin
 
 - dynamically fetch commands based on buildir [done]
 - add config to support more commands
-- support multiple projects
+- support multiple projects [done]
 - make config configure builddir and other things
 
 
