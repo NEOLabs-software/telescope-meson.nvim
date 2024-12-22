@@ -7,8 +7,8 @@ local M = {}
 
 
 M.config = {
-  builddir_name = '/builddir', -- Default builddir name
-  meson_build_name = '/meson.build', -- Default meson.build file name
+  builddir_name, -- Default builddir name
+  meson_build_name, -- Default meson.build file name
   meson_commands_with_builddir = {
     "meson compile -C %s",
     "meson test -C %s",
@@ -43,7 +43,9 @@ M.meson = function(opts)
   -- Get the current working directory
   local cwd = vim.fn.getcwd()
   -- Check if meson.build exists in the current directory
-  local meson_build_path = cwd .. M.config.meson_build_name
+
+  local meson_build_path = cwd .. (M.config.meson_build_name or '/meson.build')
+
   local builddir = cwd .. M.config.builddir_name
 
   local project_name = vim.fn.fnamemodify(cwd, ":t")
