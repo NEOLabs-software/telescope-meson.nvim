@@ -46,7 +46,7 @@ M.meson = function(opts)
 
   local meson_build_path = cwd .. (M.config.meson_build_name or '/meson.build')
 
-  local builddir = cwd .. M.config.builddir_name
+  local builddir = cwd .. (M.config.builddir_name or '/builddir')
 
   local project_name = vim.fn.fnamemodify(cwd, ":t")
 
