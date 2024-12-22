@@ -18,7 +18,7 @@ that provides meson support to neovim
 ```lua
 {
   "telescope-meson.nvim",
-  dir = '~/projects/telescope-meson.nvim',  
+  dir = 'NEOLabs-software/telescope-meson.nvim',  
   lazy = true,
   config = function()
        require('telescope-meson.meson_picker').setup(-- your custom config goes here) 
@@ -90,6 +90,7 @@ executable('%s', %s)
 })  
 ```
 
+> note: the %s represents the builddir variable, it is crucial for the plugin to work properly
 explanation:
 | setting | meaning | default value |
 | ------------- | -------------- | -------------- |
