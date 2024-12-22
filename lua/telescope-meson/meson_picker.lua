@@ -10,18 +10,19 @@ M.config = {
   builddir_name = '/builddir', -- Default builddir name
   meson_build_name = '/meson.build', -- Default meson.build file name
   meson_commands_with_builddir = {
-    "meson compile -C ${builddir}",
-    "meson test -C ${builddir}",
-    "meson install -C ${builddir}",
-    "meson configure -C ${builddir}",
-    "meson clean -C ${builddir}",
+    "meson compile -C %s",
+    "meson test -C %s",
+    "meson install -C %s",
+    "meson configure -C %s",
+    "meson clean -C %s"
   }, -- Commands with builddir
   meson_commands_without_builddir = {
-    "meson compile",
-    "meson test",
-    "meson install",
-    "meson configure",
-    "meson clean",
+    "meson setup %s",
+    "meson compile -C %s",
+    "meson test -C %s",
+    "meson install -C %s",
+    "meson configure -C %s",
+    "meson clean -C %s"
   }, -- Commands without builddir
   meson_build_template = [[
 project('%s', 'c', 'cpp',
@@ -31,6 +32,10 @@ executable('%s', %s)
 ]], -- Default meson.build template
 }
 
+M.setup = function(config)
+  -- Merge user-provided config with the default config
+  M.config = vim.tbl_deep_extend('force', M.config, config or {})
+end
 
 M.meson = function(opts)
   opts = opts or {}
@@ -49,22 +54,47 @@ M.meson = function(opts)
   if vim.fn.filereadable(meson_build_path) == 1 then
     -- If meson.build exists, show commands that require an existing build directory
     if vim.fn.isdirectory(builddir) == 1 then
-      meson_commands = {
-        "meson compile -C " .. builddir,
-        "meson test -C " .. builddir,
-        "meson install -C " .. builddir,
-        "meson configure -C " .. builddir,
-        "meson clean -C " .. builddir
+      local meson_commands_before = M.config.meson_commands_with_builddir or {
+        "meson compile -C %s",
+        "meson test -C %s",
+        "meson install -C %s",
+        "meson configure -C %s",
+        "meson clean -C %s"
       }
+
+      -- Format the commands with builddir
+      local formatted_commands = {}
+      for _, cmd in ipairs(meson_commands_before) do
+        table.insert(formatted_commands, string.format(cmd, builddir))
+      end
+
+      -- Output the formatted commands (just for demonstration)
+      for _, cmd in ipairs(formatted_commands) do
+        print(cmd)
+      end
+      meson_commands = formatted_commands
     else
-      meson_commands = {
-        "meson setup " .. builddir,
-        "meson compile -C " .. builddir,
-        "meson test -C " .. builddir,
-        "meson install -C " .. builddir,
-        "meson configure -C " .. builddir,
-        "meson clean -C " .. builddir
+      local meson_commands_before = M.config.meson_commands_without_builddir or {
+        "meson setup %s",
+        "meson compile -C %s",
+        "meson test -C %s",
+        "meson install -C %s",
+        "meson configure -C %s",
+        "meson clean -C %s"
       }
+
+      -- Format the commands with builddir
+      local formatted_commands = {}
+      for _, cmd in ipairs(meson_commands_before) do
+        table.insert(formatted_commands, string.format(cmd, builddir))
+      end
+
+      -- Output the formatted commands (just for demonstration)
+      for _, cmd in ipairs(formatted_commands) do
+        print(cmd)
+      end
+      meson_commands = formatted_commands
+
     end
   else
     -- If meson.build doesn't exist, show meson init command
@@ -97,14 +127,27 @@ executable('%s', %s)
       else
         print("Failed to create meson.build.")
       end
-      meson_commands = {
-        "meson setup " .. builddir,
-        "meson compile -C " .. builddir,
-        "meson test -C " .. builddir,
-        "meson install -C " .. builddir,
-        "meson configure -C " .. builddir,
-        "meson clean -C " .. builddir
+      local meson_commands_before = M.config.meson_commands_without_builddir or {
+        "meson setup %s",
+        "meson compile -C %s",
+        "meson test -C %s",
+        "meson install -C %s",
+        "meson configure -C %s",
+        "meson clean -C %s"
       }
+
+      -- Format the commands with builddir
+      local formatted_commands = {}
+      for _, cmd in ipairs(meson_commands_before) do
+        table.insert(formatted_commands, string.format(cmd, builddir))
+      end
+
+      -- Output the formatted commands (just for demonstration)
+      for _, cmd in ipairs(formatted_commands) do
+        print(cmd)
+      end
+      meson_commands = formatted_commands
+
     else
      -- No source files found, fallback to meson init
       print("no source files found anywhere, falling back to meson init.")
