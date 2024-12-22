@@ -17,11 +17,10 @@ that provides meson support to neovim
 
 ```lua
 {
-  "telescope-meson.nvim",
-  dir = 'NEOLabs-software/telescope-meson.nvim',  
+  "NEOLabs-software/telescope-meson.nvim",
   lazy = true,
   config = function()
-       require('telescope-meson.meson_picker').setup(-- your custom config goes here) 
+       require('telescope-meson.meson_picker').setup() 
   end
 }
 
@@ -36,7 +35,7 @@ use {
         'nvim-telescope/telescope.nvim',
     },
     config = function()
-      require('telescope-meson.meson_picker').setup(-- your custom config goes here)  
+      require('telescope-meson.meson_picker').setup()  
     end
 }
 ```
@@ -52,7 +51,7 @@ Plug 'NEOLabs-software/telescope-meson.nvim'
 if you are not using lazy or packer, then you can add this line into init.lua
 
 ```lua
-require('telescope-meson.meson_picker').setup(-- your custom config goes here)  
+require('telescope-meson.meson_picker').setup()  
 ```
 
 if you are lazyloading, then calling the setup function is not needed, but tab-completion will not be Available
